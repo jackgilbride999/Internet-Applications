@@ -1,0 +1,30 @@
+<h1>Lab 1</h1>
+
+<script>
+
+    function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    async function printNums(){
+        var i;
+        for(i = 25; i>=0; i--){
+            await sleep(2000);
+            console.log(i);
+            document.write(i, '\n');
+        }
+        return confirm("Do you want to go again?");
+    }
+
+    async function main(){
+        var go = true;
+        while(go){
+            go = await printNums();
+        }
+        console.log('Done!');
+        document.write('Done!');
+    }
+
+    main();
+
+</script>
