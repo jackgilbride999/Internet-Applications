@@ -1,9 +1,17 @@
 <h1>Lab 1</h1>
-
+<p>
+    Write a simple program that counts down from 25 to 0, printing out the countdown clock as it goes using console.log (25..20..15 etc).
+    <br>Write a second program to do the same thing by targeting running in a web browser. Save the code in a .html file with JavaScript enclosed in script tags.
+    <br>Modify the code so that it writes the result to the webpage via the DOM.
+    <br>Modify the browser code so that it writes the result to the webpage via the DOM.
+    <br>Modify the code you produced in part 1 to introduce a space of 5 seconds in between the countdown digits.
+    <br>Modify the above code so that when the countdown reaches 0, the user is prompted "Do you want to go again" - use the built in 'confirm' function to prompt for this.
+</p>
+<p id="countdown"></p>
 <script>
 
     function sleep(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
+        return new Promise(resolve => setTimeout(resolve, ms));
     }
 
     async function printNums(){
@@ -11,7 +19,7 @@
         for(i = 25; i>=0; i--){
             await sleep(2000);
             console.log(i);
-            document.write(i, '\n');
+            document.getElementById("countdown").append(i, '\n');
         }
         return confirm("Do you want to go again?");
     }
@@ -22,7 +30,7 @@
             go = await printNums();
         }
         console.log('Done!');
-        document.write('Done!');
+        document.getElementById("countdown").append('Done!');
     }
 
     main();
