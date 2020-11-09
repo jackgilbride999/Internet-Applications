@@ -1,88 +1,89 @@
-<!-- Vue client -->
-<script src="https://cdn.jsdelivr.net/npm/vue@2.6.12/dist/vue.js"></script>
+<head>
+    <!-- Vue client -->
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.12/dist/vue.js"></script>
+
+    <!-- Minimal styling to make the table readable at a glance. -->
+    <style>
+        table, th, td {
+            border: 1px solid black;
+            border-collapse: collapse;
+        }
+        table {
+            text-align: center;
+            width: 100%;
+        }
+    </style>
+</head>
 <body>
-<div id="app" style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
-    <!-- Prompt the user for input, and link it to the 'city' and 'country' variables in the Vue app. -->
-    <h1>Weather App</h1>
-    <p>What location are you planning on visiting?</p>
-    <p>City: <input v-model="city"> Country Code: <input v-model="country"> <button v-on:click="getWeather">Get Weather</button> </p>
+    <div id="app" style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
+        <!-- Prompt the user for input, and link it to the 'city' and 'country' variables in the Vue app. -->
+        <h1>Weather App</h1>
+        <p>What location are you planning on visiting?</p>
+        <p>City: <input v-model="city"> Country Code: <input v-model="country"> <button v-on:click="getWeather">Get Weather</button> </p>
 
-    <!-- Elements to show if the server has responded to the client with a success code -->
-    <!-- Show bullet points notifying the user of any special packing conditions, and a table containing a summary of each day. -->
-    <div v-if="summaryGenerated && summary.code==200">
-        <h2>Summary for {{summary.city}}, {{summary.country}}</h2>
-        <ul>
-            <li v-if="summary.rain==true">It's going to rain at some point, so you need to bring an umbrella!</li>
-            <li v-if="summary.rain==false">It's not going to rain at any point, s you don't need to bring an umbrella.</li>
-            <li v-if="summary.cold==true">The temperature is going to drop under 10°C at some point, so you need to pack for cold weather!</li>
-            <li v-if="summary.warm==true">The temperature is going to be between 10°C and 20°C at some point, so you need to pack for warm weather!</li>
-            <li v-if="summary.hot==true">The temperature is going to be above 20°C at some point, so you need to pack for hot weather!</li>
-        </ul>
-        <table>
-            <thead>
-                <tr style="border: 1px solid black">
-                    <th>Date / Time</th>
-                    <th>Average Temperature (°C)</th>
-                    <th>Average Wind Speed (km/h)</th>
-                    <th>Total Rainfall (mm)</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr v-for="row in summary.list">
-                    <td>{{row.date_time}}</td>
-                    <td>{{row.temp}}</td>
-                    <td>{{row.wind_speed}}</td>
-                    <td>{{row.rain}}</td>
-                </tr>
-            </tbody>
-        </table>
+        <!-- Elements to show if the server has responded to the client with a success code -->
+        <!-- Show bullet points notifying the user of any special packing conditions, and a table containing a summary of each day. -->
+        <div v-if="summaryGenerated && summary.code==200">
+            <h2>Summary for {{summary.city}}, {{summary.country}}</h2>
+            <ul>
+                <li v-if="summary.rain==true">It's going to rain at some point, so you need to bring an umbrella!</li>
+                <li v-if="summary.rain==false">It's not going to rain at any point, s you don't need to bring an umbrella.</li>
+                <li v-if="summary.cold==true">The temperature is going to drop under 10°C at some point, so you need to pack for cold weather!</li>
+                <li v-if="summary.warm==true">The temperature is going to be between 10°C and 20°C at some point, so you need to pack for warm weather!</li>
+                <li v-if="summary.hot==true">The temperature is going to be above 20°C at some point, so you need to pack for hot weather!</li>
+            </ul>
+            <table>
+                <thead>
+                    <tr style="border: 1px solid black">
+                        <th>Date / Time</th>
+                        <th>Average Temperature (°C)</th>
+                        <th>Average Wind Speed (km/h)</th>
+                        <th>Total Rainfall (mm)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-for="row in summary.list">
+                        <td>{{row.date_time}}</td>
+                        <td>{{row.temp}}</td>
+                        <td>{{row.wind_speed}}</td>
+                        <td>{{row.rain}}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Elements to show if the server has responded to the client with an error code -->
+        <div v-if="summaryGenerated && summary.code==404">
+            <h2>Error 404</h2>
+            <p>Error: City not found. Please try again.</p>
+        </div>
     </div>
 
-    <!-- Elements to show if the server has responded to the client with an error code -->
-    <div v-if="summaryGenerated && summary.code==404">
-        <h2>Error 404</h2>
-        <p>Error: City not found. Please try again.</p>
-    </div>
-</div>
+    <script>
+    // Variable for the Vue app, which is linked to the app div above
+    var app = new Vue({
+        el: '#app',
+        data: {
+            city: "",
+            country: "",
+            summary: {},
+            summaryGenerated: false    
+        },
+        methods: {
+            getWeather: getWeather
+        }
+    })
 
-<script>
-// Variable for the Vue app, which is linked to the app div above
-var app = new Vue({
-    el: '#app',
-    data: {
-        city: "",
-        country: "",
-        summary: {},
-        summaryGenerated: false    
-    },
-    methods: {
-        getWeather: getWeather
+    // When the button is pressed, request the weather from the server, at the specified city and country
+    // Capture the response in the summary field, and capture that there has been a response with summaryGenerated
+    function getWeather(){
+        console.log("getWeather called")
+        let prom = fetch("/weather/" + this.city + "," + this.country);
+        prom.then(response => response.json())
+            .then(response =>
+                this.summary = response,
+                this.summaryGenerated = true
+            )
     }
-})
-
-// When the button is pressed, request the weather from the server, at the specified city and country
-// Capture the response in the summary field, and capture that there has been a response with summaryGenerated
-function getWeather(){
-    console.log("getWeather called")
-    let prom = fetch("/weather/" + this.city + "," + this.country);
-    prom.then(response => response.json())
-        .then(response =>
-            this.summary = response,
-            this.summaryGenerated = true
-        )
-}
-
-</script>
-
-<!-- Minimal styling to make the table readable at a glance. -->
-<style>
-    table, th, td {
-        border: 1px solid black;
-        border-collapse: collapse;
-    }
-    table {
-        text-align: center;
-        width: 100%;
-    }
-</style>
+    </script>
 </body>
