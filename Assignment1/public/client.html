@@ -1,18 +1,35 @@
 <!-- Vue client -->>
 <script src="https://cdn.jsdelivr.net/npm/vue@2.6.12/dist/vue.js"></script>
 <body>
-<h1>this is a very simple vue app</h1>
 <div id="app">
-    <p>{{message}}</p>
-    <input v-model = "message">
+    <h1>Weather App</h1>
+    <p>What location are you planning on visiting?</p>
+    <p>City: <input v-model="city"></p>
+    <p>Country Code: <input v-model="country"></p>
+    <button v-on:click="getWeather">Get Weather</button>
+    <p>{{summary}}</p>
 </div>
 
 <script>
 var app = new Vue({
     el: '#app',
     data: {
-        message: 'Hello Vue!'
+        city: "",
+        country: "",
+        summary: {}    
+    },
+    methods: {
+        getWeather: getWeather
     }
 })
+
+function getWeather(){
+    console.log("getWeather called")
+    let prom = fetch("/weather/" + this.city + "," + this.country);
+    prom.then(response => response.json())
+        .then(response =>
+            this.summary = JSON.parse(response)
+        )
+}
 </script>
 </body>
