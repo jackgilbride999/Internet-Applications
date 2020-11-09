@@ -3,7 +3,8 @@ const https = require('https');
 const express = require('express')
 const app = express()
 const port = 3000
-const path = require("path")
+const path = require("path");
+const { open } = require('inspector');
 let publicPath = path.resolve(__dirname, "public")
 
 app.use(express.static(publicPath))
@@ -33,6 +34,8 @@ function getWeather(req, res){
                 - A summary for the next 5 days including: temperature, wind speed and rainfall
             */
             var summaryForClient = {
+                city: openWeatherJSON.city.name,
+                country: openWeatherJSON.city.country,
                 rain: false,
                 cold: false,
                 warm: false,
