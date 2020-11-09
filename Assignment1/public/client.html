@@ -28,7 +28,7 @@ function getWeather(){
     let prom = fetch("/weather/" + this.city + "," + this.country);
     prom.then(response => response.json())
         .then(response =>
-            this.summary = JSON.parse(response)
+            this.summary = response
         )
 }
 </script>
