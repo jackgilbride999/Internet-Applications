@@ -2,9 +2,13 @@
 <script src="https://cdn.jsdelivr.net/npm/vue@2.6.12/dist/vue.js"></script>
 <body>
 <div id="app" style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
+    <!-- Prompt the user for input, and link it to the 'city' and 'country' variables in the Vue app. -->
     <h1>Weather App</h1>
     <p>What location are you planning on visiting?</p>
     <p>City: <input v-model="city"> Country Code: <input v-model="country"> <button v-on:click="getWeather">Get Weather</button> </p>
+
+    <!-- Elements to show if the server has responded to the client with a success code -->
+    <!-- Show bullet points notifying the user of any special packing conditions, and a table containing a summary of each day. -->
     <div v-if="summaryGenerated && summary.code==200">
         <h2>Summary for {{summary.city}}, {{summary.country}}</h2>
         <ul>
@@ -33,6 +37,8 @@
             </tbody>
         </table>
     </div>
+
+    <!-- Elements to show if the server has responded to the client with an error code -->
     <div v-if="summaryGenerated && summary.code==404">
         <h2>Error 404</h2>
         <p>Error: City not found. Please try again.</p>
@@ -40,6 +46,7 @@
 </div>
 
 <script>
+// Variable for the Vue app, which is linked to the app div above
 var app = new Vue({
     el: '#app',
     data: {
@@ -53,6 +60,8 @@ var app = new Vue({
     }
 })
 
+// When the button is pressed, request the weather from the server, at the specified city and country
+// Capture the response in the summary field, and capture that there has been a response with summaryGenerated
 function getWeather(){
     console.log("getWeather called")
     let prom = fetch("/weather/" + this.city + "," + this.country);
@@ -65,6 +74,7 @@ function getWeather(){
 
 </script>
 
+<!-- Minimal styling to make the table readable at a glance. -->
 <style>
     table, th, td {
         border: 1px solid black;
