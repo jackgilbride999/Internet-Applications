@@ -19,17 +19,22 @@ function getMovies(req, res){
     let title = req.query.title;
     let year = req.query.year;
     console.log("request received, " + title + ", " + year);
+    
     s3.getObject(
         { Bucket: "csu44000assign2useast20", Key: "moviedata.json" },
         function (error, data) {
           if (error != null) {
             console.log("Failed to retrieve an object: " + error);
+            return res.status(400).json(err)
           } else {
             console.log("Loaded " + data.ContentLength + " bytes");
-            // do something with data.Body
+            let bucketData = JSON.parse(data.Body)
+            console.log(bucketData)
+            res.json(bucketData)
           }
         }
       );
+
     /*
     var url = "https://api.openweathermap.org/data/2.5/forecast?q=" + city + "&APPID=3e2d927d4f28b456c6bc662f34350957&units=metric";
    
