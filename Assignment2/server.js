@@ -11,22 +11,6 @@ AWS.config.update({
 
 var dynamodb = new AWS.DynamoDB();
 
-var params = {
-    TableName : "Movies",
-    KeySchema: [       
-        { AttributeName: "year", KeyType: "HASH"},  //Partition key
-        { AttributeName: "title", KeyType: "RANGE" }  //Sort key
-    ],
-    AttributeDefinitions: [       
-        { AttributeName: "year", AttributeType: "N" },
-        { AttributeName: "title", AttributeType: "S" }
-    ],
-    ProvisionedThroughput: {       
-        ReadCapacityUnits: 1, 
-        WriteCapacityUnits: 1
-    }
-};
-
 
 
 // Set up the app to listen on a port, respond to page requests and return to movie requests
@@ -38,6 +22,22 @@ app.get('/create/', createDatabase)
 app.get('/delete/', deleteDatabase)
 
 function createDatabase(req, res){
+    let params = {
+        TableName : "Movies",
+        KeySchema: [       
+            { AttributeName: "year", KeyType: "HASH"},  //Partition key
+            { AttributeName: "title", KeyType: "RANGE" }  //Sort key
+        ],
+        AttributeDefinitions: [       
+            { AttributeName: "year", AttributeType: "N" },
+            { AttributeName: "title", AttributeType: "S" }
+        ],
+        ProvisionedThroughput: {       
+            ReadCapacityUnits: 1, 
+            WriteCapacityUnits: 1
+        }
+    };
+    
     s3.getObject(
         { Bucket: "csu44000assign2useast20", Key: "moviedata.json" },
         function (error, data) {
@@ -48,14 +48,33 @@ function createDatabase(req, res){
             console.log("Loaded " + data.ContentLength + " bytes");
             let bucketData = JSON.parse(data.Body)
             console.log(bucketData)
-            res.json(bucketData)
             dynamodb.createTable(params, function(err, data) {
                 if (err) {
                     console.error("Unable to create table. Error JSON:", JSON.stringify(err, null, 2));
                     return res.status(400).json(err)
                 } else {
                     console.log("Created table. Table description JSON:", JSON.stringify(data, null, 2));
-                    return res.status(200).send('Successul')
+                    //return res.status(200).send('Successul')
+                    let docClient = new AWS.DynamoDB.DocumentClient();
+                    bucketData.forEach(function(movie) {
+                        var params = {
+                            TableName: "Movies",
+                            Item: {
+                                "year":  movie.year,
+                                "title": movie.title,
+                                "info":  movie.info
+                            }
+                        };
+                        docClient.put(params, function(err, data) {
+                           if (err) {
+                               console.error("Unable to add movie", movie.title, ". Error JSON:", JSON.stringify(err, null, 2));
+                               return res.status(400).json(err)
+                           } else {
+                               console.log("PutItem succeeded:", movie.title);
+                           }
+                        });
+                    });
+                    return res.status(200).send('Successfully created database.')
                 }
             });
           }
@@ -64,6 +83,10 @@ function createDatabase(req, res){
 }
 
 function deleteDatabase(req, res){
+    let params = {
+        TableName : "Movies"
+    };
+
     dynamodb.deleteTable(params, function(err, data) {
         if (err) {
             console.error("Unable to delete table. Error JSON:", JSON.stringify(err, null, 2));
