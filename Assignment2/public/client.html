@@ -21,47 +21,31 @@
         <p>Movie Name: <input v-model="title"> Year: <input v-model="year"> <button v-on:click="getMovies">Get Movie</button></p>
         <button v-on:click="deleteDatabase">Delete Database</button>
 
-
-        <!-- Elements to show if the server has responded to the client with a success code -->
-        <!-- Show bullet points notifying the user of any special packing conditions, and a table containing a summary of each day. -->
+        
         <div v-if="summaryGenerated && summary.code==200">
-            <!--
-            <h2>Summary for {{summary.city}}, {{summary.country}}</h2>
-            <ul>
-                <li v-if="summary.rain==true">It's going to rain at some point, so you need to bring an umbrella!</li>
-                <li v-if="summary.rain==false">It's not going to rain at any point, s you don't need to bring an umbrella.</li>
-                <li v-if="summary.cold==true">The temperature is going to drop under 10°C at some point, so you need to pack for cold weather!</li>
-                <li v-if="summary.warm==true">The temperature is going to be between 10°C and 20°C at some point, so you need to pack for warm weather!</li>
-                <li v-if="summary.hot==true">The temperature is going to be above 20°C at some point, so you need to pack for hot weather!</li>
-            </ul>
             <table>
                 <thead>
                     <tr style="border: 1px solid black">
-                        <th>Date / Time</th>
-                        <th>Average Temperature (°C)</th>
-                        <th>Average Wind Speed (km/h)</th>
-                        <th>Total Rainfall (mm)</th>
+                        <th>Title</th>
+                        <th>Release Date</th>
+                        <th>Rating</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr v-for="row in summary.list">
-                        <td>{{row.date_time}}</td>
-                        <td>{{row.temp}}</td>
-                        <td>{{row.wind_speed}}</td>
-                        <td>{{row.rain}}</td>
+                        <td>{{row.title}}</td>
+                        <td>{{row.info.release_date}}</td>
+                        <td>{{row.info.rating}}</td>
                     </tr>
                 </tbody>
             </table>
-        -->
         </div>
         <div v-if="summaryGenerated && summary.code==404">
-            <h2>Error 404</h2>
-            <p>Error: City not found. Please try again.</p>
+            <p>Error 404: No movie found.</p>
         </div>
     </div>
 
     <script>
-    // Variable for the Vue app, which is linked to the app div above
     var app = new Vue({
         el: '#app',
         data: {

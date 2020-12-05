@@ -68,7 +68,7 @@ function createDatabase(req, res){
                         docClient.put(params, function(err, data) {
                            if (err) {
                                console.error("Unable to add movie", movie.title, ". Error JSON:", JSON.stringify(err, null, 2));
-                               return res.status(400).json(err)
+                               //return res.status(400).json(err)
                            } else {
                                //console.log("PutItem succeeded:", movie.title);
                            }
