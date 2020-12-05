@@ -115,7 +115,7 @@ function getMovies(req, res){
             "#yr": "year"
         },
         ExpressionAttributeValues: {
-            ":yyyy": year,
+            ":yyyy": parseInt(year),
             ":t": title
         }
     };
@@ -129,7 +129,7 @@ function getMovies(req, res){
             data.Items.forEach(function(item) {
                 console.log(" -", item.year + ": " + item.title);
             });
-            return res.status(200).json(results)
+            return res.status(200).json(data)
         }
     });
 }
