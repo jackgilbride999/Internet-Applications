@@ -5,6 +5,28 @@ const port = 3000
 const path = require("path");
 var AWS = require('aws-sdk');
 var s3 = new AWS.S3();
+AWS.config.update({
+    region: 'us-east-1'
+});
+
+var dynamodb = new AWS.DynamoDB();
+
+var params = {
+    TableName : "Movies",
+    KeySchema: [       
+        { AttributeName: "year", KeyType: "HASH"},  //Partition key
+        { AttributeName: "title", KeyType: "RANGE" }  //Sort key
+    ],
+    AttributeDefinitions: [       
+        { AttributeName: "year", AttributeType: "N" },
+        { AttributeName: "title", AttributeType: "S" }
+    ],
+    ProvisionedThroughput: {       
+        ReadCapacityUnits: 1, 
+        WriteCapacityUnits: 1
+    }
+};
+
 
 
 // Set up the app to listen on a port, respond to page requests and return to movie requests
@@ -12,14 +34,10 @@ let publicPath = path.resolve(__dirname, "public")
 app.use(express.static(publicPath))
 app.listen(port, () => console.log(`Listening on port ${port}`))
 app.get('/movies/', getMovies)
+app.get('/create/', createDatabase)
+app.get('/delete/', deleteDatabase)
 
-// The function to response to forecast requests for a city
-function getMovies(req, res){
-    // Parse out the city and call the OpenWeatherMap API
-    let title = req.query.title;
-    let year = req.query.year;
-    console.log("request received, " + title + ", " + year);
-    
+function createDatabase(req, res){
     s3.getObject(
         { Bucket: "csu44000assign2useast20", Key: "moviedata.json" },
         function (error, data) {
@@ -31,9 +49,40 @@ function getMovies(req, res){
             let bucketData = JSON.parse(data.Body)
             console.log(bucketData)
             res.json(bucketData)
+            dynamodb.createTable(params, function(err, data) {
+                if (err) {
+                    console.error("Unable to create table. Error JSON:", JSON.stringify(err, null, 2));
+                    return res.status(400).json(err)
+                } else {
+                    console.log("Created table. Table description JSON:", JSON.stringify(data, null, 2));
+                    return res.status(200).send('Successul')
+                }
+            });
           }
         }
       );
+}
+
+function deleteDatabase(req, res){
+    dynamodb.deleteTable(params, function(err, data) {
+        if (err) {
+            console.error("Unable to delete table. Error JSON:", JSON.stringify(err, null, 2));
+            return res.status(400).json(err)
+        } else {
+            console.log("Deleted table. Table description JSON:", JSON.stringify(data, null, 2));
+            return res.status(200).send('Successul')
+        }
+    });
+}
+
+// The function to response to forecast requests for a city
+function getMovies(req, res){
+    // Parse out the city and call the OpenWeatherMap API
+    let title = req.query.title;
+    let year = req.query.year;
+    console.log("request received, " + title + ", " + year);
+    
+
 
     /*
     var url = "https://api.openweathermap.org/data/2.5/forecast?q=" + city + "&APPID=3e2d927d4f28b456c6bc662f34350957&units=metric";
