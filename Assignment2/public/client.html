@@ -61,12 +61,12 @@
 
     function createDatabase(){
         console.log("createDatabase called")
-        fetch("/create")
+        fetch("/create", {method: 'POST'})
     }
 
     function deleteDatabase(){
         console.log("deleteDatabase called")
-        fetch("/delete/")
+        fetch("/delete", {method: 'POST'})
     }
 
     function getMovies(){
