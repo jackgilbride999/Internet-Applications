@@ -1,11 +1,8 @@
 <head>
     <!-- Vue client -->
     <script src="https://cdn.jsdelivr.net/npm/vue@2.6.12/dist/vue.js"></script>
-    <!-- Minimal styling. -->
+    <!-- Minimal styling for the table. -->
     <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
         table, th, td {
             border: 1px solid black;
             border-collapse: collapse;
@@ -49,7 +46,7 @@
         data: {
             title: "",
             year: "",
-            summary: {},
+            summary: [],
             summaryGenerated: false    
         },
         methods: {

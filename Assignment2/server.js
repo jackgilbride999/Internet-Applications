@@ -11,7 +11,6 @@ app.get('/movies/', getMovies)
 app.post('/create', createDatabase)
 app.post('/delete', deleteDatabase)
 
-
 // constants for working with AWS bucket & dynamo db
 const AWS = require('aws-sdk');
 const s3 = new AWS.S3();
@@ -39,9 +38,11 @@ function createDatabase(req, res){
 
     dynamodb.createTable(params, async function(err, data) {
         if (err) {
-            console.error("Unable to create table. Error JSON:", JSON.stringify(err, null, 2));
+            console.error("Unable to create table. Error JSON:", 
+                JSON.stringify(err, null, 2));
         } else {
-            console.log("Created table. Table description JSON:", JSON.stringify(data, null, 2));
+            console.log("Created table. Table description JSON:", 
+                JSON.stringify(data, null, 2));
             s3.getObject(
                 { Bucket: "csu44000assign2useast20", Key: "moviedata.json" },
                 async function (error, data) {
@@ -50,8 +51,9 @@ function createDatabase(req, res){
                   } else {
                     console.log("Loaded " + data.ContentLength + " bytes");
                     let bucketData = JSON.parse(data.Body)
-
-                    await dynamodb.waitFor("tableExists", {TableName: "Movies"}).promise(); // Ensure that the table creation has been completed before trying to populate it
+                    // Ensure that the table creation has been completed before 
+                    // trying to populate it:
+                    await dynamodb.waitFor("tableExists", {TableName: "Movies"}).promise(); 
                     let docClient = new AWS.DynamoDB.DocumentClient();
                     bucketData.forEach(function(movie) {
                         var params = {
@@ -64,7 +66,8 @@ function createDatabase(req, res){
                         };
                         docClient.put(params, function(err, data) {
                            if (err) {
-                               console.error("Unable to add movie", movie.title, ". Error JSON:", JSON.stringify(err, null, 2));
+                               console.error("Unable to add movie", movie.title, 
+                                ". Error JSON:", JSON.stringify(err, null, 2));
                            }
                         });
                     });
@@ -72,15 +75,8 @@ function createDatabase(req, res){
                   }
                 }
               );
-            
-            
-            
-            
-
         }
     });
-    
-
 }
 
 function deleteDatabase(req, res){
@@ -89,9 +85,11 @@ function deleteDatabase(req, res){
     };
     dynamodb.deleteTable(params, function(err, data) {
         if (err) {
-            console.error("Unable to delete table. Error JSON:", JSON.stringify(err, null, 2));
+            console.error("Unable to delete table. Error JSON:", 
+                JSON.stringify(err, null, 2));
         } else {
-            console.log("Deleted table. Table description JSON:", JSON.stringify(data, null, 2));
+            console.log("Deleted table. Table description JSON:", 
+                JSON.stringify(data, null, 2));
         }
     });
 }
@@ -101,7 +99,7 @@ function getMovies(req, res){
     let year = req.query.year;
     console.log("request received, " + title + ", " + year);
     
-    var params = {
+    let params = {
         TableName : "Movies",
         KeyConditionExpression: "#yr = :yyyy and begins_with(title, :t)",
         ExpressionAttributeNames:{
@@ -114,10 +112,10 @@ function getMovies(req, res){
     };
 
     var docClient = new AWS.DynamoDB.DocumentClient();
-    
     docClient.query(params, function(err, data) {
         if (err) {
-            console.error("Unable to query. Error:", JSON.stringify(err, null, 2));
+            console.error("Unable to query. Error:", 
+                JSON.stringify(err, null, 2));
             return res.status(400).json(err)
         } else {
             console.log("Query succeeded.");
